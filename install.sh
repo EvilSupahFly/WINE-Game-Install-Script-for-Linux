@@ -1,11 +1,4 @@
 #!/bin/bash
-#
-# This is (probably) the final evolution of my Game Installer Script. Command-line parameters are now optional,
-# I've added colour to the output, the logic has been tweaked out a bit so now the script will check for WINE,
-# and attempt to install it, should it not be found, and I've also added commentary to each section to explain
-# what it all does and added extensive error handling. As far as features go, I was thinking of making both the
-# MSVC redist and Vulkan functions which could be called independently of actually performing an install with
-# a command-line parameter, but I don't really see the need at this point.
 
 IFS=$'\n'
 
