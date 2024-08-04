@@ -19,3 +19,5 @@ script looks for any .EXE files in the "destination" folder, once again presenti
 
 With the final .EXE selected, this script writes a runner script for the chosen game which defines the WINEPREFIX and
 game install location, and the name of the game's primary .EXE, makes it executable, and reports all this to the user.
+
+![terminal_output](https://github.com/user-attachments/assets/0321c339-ff94-499a-a352-155c7495f155)
