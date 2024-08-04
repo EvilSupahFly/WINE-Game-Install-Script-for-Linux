@@ -12,8 +12,8 @@ YELLOW="${BOLD}${BGND}\e[1;33m"
 RED="${BOLD}${BGND}\e[1;91m"
 GREEN="${BOLD}${BGND}\e[1;92m"
 WHITE="${BOLD}${BGND}\e[1;97m"
-
 SKIP=false
+LAUNCHER=""
 
 echo -e "${WHITE}" # Make the text bold and white by default because it's easier to read.
 # User ID, working directory and parameter checks - NO ROOT!!!
@@ -58,9 +58,9 @@ if [[ -z "$1" ]] || [[ "${1,,}" == *"skip"* ]]; then
     for ((i=0; i<"${#GDIRS[@]}"; i++)); do
         # Write the list to the screen, removing the trailing slashes, and determine the color based on the index
         if ((i % 2 == 0)); then
-            echo -e "${GREEN}$i: ${GDIRS[$i]%/}"
+            echo -e "${ULINE}${WHITE}$i: ${GDIRS[$i]%/}${RESET}${WHITE}"
         else
-            echo -e "${ULINE}${WHITE}$i: ${GDIRS[$i]%/}${RESET}"
+            echo -e "${ULINE}${GREEN}$i: ${GDIRS[$i]%/}${RESET}${WHITE}"
         fi
         #dir="${GDIRS[$i]%/}"
         #echo "$i: $dir"
@@ -133,20 +133,18 @@ if ! command -v wine &> /dev/null; then
         echo -e "${RED}Fatal error ${WHITE}$ERRNUM ${RED}occurred installing WINE. ٩(๏̯๏)۶ "
         echo
         echo -e "${YELLOW}Hey. Don't look at me. ${WHITE}I don't know what it means."
-        echo -e "${YELLOW}Try Googling error $ERRNUM and see if that helps?${RESET}"
+        echo -e "${YELLOW}Try Googling error ${ULINE}$ERRNUM ${RESET}${YELLOW}and see if that helps?${RESET}"
         echo
         exit $ERRNUM
     fi
-    WINEVER="$(wine --version)" # Get the version number of the WINE package we just installed.
-    WINE="$(command -v wine)" # Assign $WINE through command substitution now that it's installed.
-    echo -e "${WHITE}Successfully installed ${YELLOW}$WINEVER${WHITE}."
     echo
 fi
 
 # Variable Declarations
 # Using the short-circuit trick, check if $WINE is empty (if we didn't have to install WINE, it will be)
 # and if so, assign it through command substitution
-export WINE="${WINE:=$(command -v wine)}"
+export WINE="$(command -v wine)"
+export WINEVER="$(wine --version)" # Get the version number of the WINE package we just installed.
 export WINE_LARGE_ADDRESS_AWARE=1; export WINEDLLOVERRIDES="winemenubuilder.exe=d;mshtml=d;nvapi,nvapi64=n" # Set environment variables for WINE
 export WINEPREFIX="/home/$(whoami)/Game_Storage" # Create Wineprefix if it doesn't exist
 export GAMESRC="$PWD/$1" # Game Source Folder (where the setup is)
@@ -155,6 +153,9 @@ export GSS="$WINEPREFIX/drive_c/$NOSPACE.sh" # Game Starter Script - written aut
 export RSRC="$PWD/.redist" # Location of the MSVC Redistributables
 #export WINEDBG="$(command -v winedbg)" # <-- WINE Debugger
 #export WINEBOOT="$(command -v wineboot)" # <-- WINEBOOT
+
+echo -e "${GREEN}WINE version ${WHITE}$WINEVER${GREEN} is installed and verified functional."
+echo
 
 # Check to see if $GAMESRC actually exists. If not, exit with an error (useful check if user gives $1)
 if [ ! -d "$GAMESRC" ]; then
@@ -173,6 +174,36 @@ if [ -z "$GAMESRC" ]; then
     exit 255
 fi
 
+# MSVC redistributables - if "skip" was given, don't ask about installing the runtimes.
+# Otherwise, ask and act accordingly.
+if [ "$SKIP" = false ]; then
+    echo -e "${WHITE}If you have already installed MSVC redistributables, you can answer 'n' below,"
+    echo "Or you can skip this prompt next time you install something by passing 'skip' on the command line:"
+    echo
+    echo -e "  $0 \"GAME FOLDER\" skip"
+    echo
+    echo -e "or just like this"
+    echo
+    echo -e "  $0 skip"
+    echo
+    echo -e "${RED}HOWEVER:${WHITE} If this is the first run, you should definitely install them."
+    echo
+    echo -e "Go ahead and install MSVC redistributables? ${YELLOW}(y/n) "; read YN
+else
+    YN="n"
+fi
+echo -e "${WHITE}"
+case $YN in
+    [yY] ) echo "Proceeding with MSVC runtime installs.";
+      cd "$RSRC";
+      for i in *.exe;
+        do
+            echo -e "${WHITE}Installing \"${YELLOW}$i${WHITE}\" into $WINEPREFIX";
+            "$WINE" "$i" >/dev/null 2>&1;
+        done;;
+    * ) echo -e "${YELLOW}OK, I'm skipping the redistributables. ${RED}Just don't blame me if something breaks.${WHITE}";;
+esac
+
 # Create an array containing all the .exe files.
 # If there aren't any .exe files in the directory, exit with an error
 SETUPEXE=($(find "$GAMESRC" -type f -iname "*.exe"))
@@ -185,17 +216,17 @@ if [ "${#SETUPEXE[@]}" -eq 0 ]; then
     exit 255
 fi
 # Print the contents of the array and ask for input, looping until a valid response is recieved, choose color based on even or odd index
-echo -e "${WHITE}Installer options:${YELLOW}"
-echo
+echo -e "${YELLOW}Installer options:${WHITE}"
 
-if ((i % 2 == 0)); then
-    echo -e "${ULINE}${GREEN}$i: ${SETUPEXE[$i]}${RESET}"
-else
-    echo -e "${ULINE}${WHITE}$i: ${SETUPEXE[$i]}${RESET}"
-fi
-#for ((i=0; i<"${#SETUPEXE[@]}"; i++)); do
-#    echo "$i: ${SETUPEXE[$i]}"
-#done
+echo
+for ((i=0; i<"${#SETUPEXE[@]}"; i++)); do
+    if ((i % 2 == 0)); then
+        echo -e "${ULINE}${WHITE}$i: ${SETUPEXE[$i]}${RESET}${WHITE}"
+    else
+        echo -e "${ULINE}${GREEN}$i: ${SETUPEXE[$i]}${RESET}${WHITE}"
+    fi
+done
+
 echo -e "${WHITE}"
 while true; do
     read -p "Select an installer: " instsel
@@ -267,38 +298,9 @@ vulkan-dl() { echo "Using external vulkan translation (dxvk,vkd3d,dxvk-nvapi)." 
 export DXVK_ENABLE_NVAPI=1
 echo
 
-# MSVC redistributables - if "skip" was given, don't ask about installing the runtimes.
-# Otherwise, ask and act accordingly.
-if [ "$SKIP" = false ]; then
-    echo -e "${WHITE}If you have already installed MSVC redistributables, you can answer 'n' below,"
-    echo "Or you can skip this prompt next time you install something by passing 'skip' on the command line:"
-    echo
-    echo -e "  $0 \"GAME FOLDER\" skip"
-    echo
-    echo -e "or just like this"
-    echo
-    echo -e "  $0 skip"
-    echo
-    echo -e "${RED}HOWEVER:${WHITE} If this is the first run, you should definitely install them."
-    echo
-    echo -e "Go ahead and install MSVC redistributables? ${YELLOW}(y/n) "; read YN
-else
-    YN="n"
-fi
-echo -e "${WHITE}"
-case $YN in
-    [yY] ) echo "Proceeding with MSVC runtime installs.";
-      cd "$RSRC";
-      for i in *.exe;
-        do
-            echo -e "${WHITE}Installing \"${YELLOW}$i${WHITE}\" into $WINEPREFIX";
-            "$WINE" "$i" >/dev/null 2>&1;
-        done;;
-    * ) echo -e "${YELLOW}OK, I'm skipping the redistributables. ${RED}Just don't blame me if something breaks.${WHITE}";;
-esac
 
 # Start WINE and pass the primary installer .EXE to it.
-echo -e "${WHITE}Starting \"${YELLOW}$1${WHITE}\" installer... (suppressing WINE output)"
+echo -e "${WHITE}Starting \"${YELLOW}$1${WHITE}\" installer..."
 echo
 
 cd "$GAMESRC" # This is the source folder for the .exe
