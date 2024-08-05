@@ -202,9 +202,10 @@ if [ "$SKIP" = false ]; then
     echo
     echo -e "${RED}HOWEVER:${WHITE} If this is your first time running this script, you should ${GREEN}definitely${WHITE} install them."
     echo
-    read "Go ahead and skip the install for MSVC redistributables? (y/n) " YN
+    read -p "Go ahead and skip the install for MSVC redistributables? (y/n) " YN
+    echo
 else
-    YN="n"
+    YN="y"
 fi
 echo -e "${WHITE}"
 case $YN in
@@ -369,12 +370,16 @@ if [[ "${DO_GSS,,}" == "y" ]] && [ ${#GAME_EXE[@]} -ne 0 ]; then
     echo
     echo -e "${WHITE}Game runner options:"
     echo
-    for ((i=0; i<${#GAME_EXE[@]}; i++)); do
-        echo -e "${YELLOW}$i: ${GAME_EXE[$i]}"
+    for ((i=0; i<"${#GAME_EXE[@]}"; i++)); do
+        if ((i % 2 == 0)); then
+            echo -e "${ULINE}${WHITE}$i: ${GAME_EXE[$i]}${RESET}${WHITE}"
+        else
+            echo -e "${ULINE}${GREEN}$i: ${GAME_EXE[$i]}${RESET}${WHITE}"
+        fi
     done
     echo
     while true; do
-        read -p "${YELLOW}Select game .EXE: " gamesel
+        read -p "Select game .EXE: " gamesel
         if [[ $gamesel =~ ^[0-9]+$ && $gamesel -le ${#GAME_EXE[@]} ]]; then
             GAMEDEST=$(dirname "${GAME_EXE[$((gamesel))]}")
             EXE=$(basename "${GAME_EXE[$gamesel]}")
