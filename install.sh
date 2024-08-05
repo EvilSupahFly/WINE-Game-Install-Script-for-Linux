@@ -143,18 +143,29 @@ fi
 # Variable Declarations
 # Using the short-circuit trick, check if $WINE is empty (if we didn't have to install WINE, it will be)
 # and if so, assign it through command substitution
-export WINE="$(command -v wine)"
-export WINEVER="$(wine --version)" # Get the version number of the WINE package we just installed.
-export WINE_LARGE_ADDRESS_AWARE=1; export WINEDLLOVERRIDES="winemenubuilder.exe=d;mshtml=d;nvapi,nvapi64=n" # Set environment variables for WINE
-export WINEPREFIX="/home/$(whoami)/Game_Storage" # Create Wineprefix if it doesn't exist
-export GAMESRC="$PWD/$1" # Game Source Folder (where the setup is)
-export GAMEDEST="$WINEPREFIX/drive_c/Games/$1" # Game Destination Folder (where it's going to be)
-export GSS="$WINEPREFIX/drive_c/$NOSPACE.sh" # Game Starter Script - written automatically by this script
-export RSRC="$PWD/.redist" # Location of the MSVC Redistributables
-#export WINEDBG="$(command -v winedbg)" # <-- WINE Debugger
-#export WINEBOOT="$(command -v wineboot)" # <-- WINEBOOT
+WINE="$(command -v wine)"
+WINEVER="$(wine --version)" # Get the version number of the WINE package we just installed.
+WINE_LARGE_ADDRESS_AWARE=1; WINEDLLOVERRIDES="winemenubuilder.exe=d;mshtml=d;nvapi,nvapi64=n" # Set environment variables for WINE
+WINEPREFIX="/home/$(whoami)/Game_Storage" # Create Wineprefix if it doesn't exist
+GAMESRC="$PWD/$1" # Game Source Folder (where the setup is)
+GAMEDEST="$WINEPREFIX/drive_c/Games/$1" # Game Destination Folder (where it's going to be)
+GSS="$WINEPREFIX/drive_c/$NOSPACE.sh" # Game Starter Script - written automatically by this script
+RSRC="$PWD/.redist" # Location of the MSVC Redistributables
+#WINEDBG="$(command -v winedbg)" # <-- WINE Debugger
+#WINEBOOT="$(command -v wineboot)" # <-- WINEBOOT
+export WINE
+export WINEVER
+export WINE_LARGE_ADDRESS_AWARE
+export WINEDLLOVERRIDES
+export WINEPREFIX
+export GAMESRC
+export GAMEDEST
+export GSS
+export RSRC
+#export WINEDBG
+#export WINEBOOT
 
-echo -e "${GREEN}WINE version ${WHITE}$WINEVER${GREEN} is installed and verified functional."
+echo -e "${GREEN}WINE version ${YELLOW}$WINEVER${GREEN} is installed and verified functional."
 echo
 
 # Check to see if $GAMESRC actually exists. If not, exit with an error (useful check if user gives $1)
@@ -177,24 +188,27 @@ fi
 # MSVC redistributables - if "skip" was given, don't ask about installing the runtimes.
 # Otherwise, ask and act accordingly.
 if [ "$SKIP" = false ]; then
-    echo -e "${WHITE}If you have already installed MSVC redistributables, you can answer 'n' below,"
+    echo -e "${WHITE}If you have already installed MSVC redistributables, you can answer 'y' below,"
     echo "Or you can skip this prompt next time you install something by passing 'skip' on the command line:"
     echo
-    echo -e "  $0 \"GAME FOLDER\" skip"
+    echo -e "  ${YELLOW}$0 \"GAME FOLDER\" skip${WHITE}"
     echo
     echo -e "or just like this"
     echo
-    echo -e "  $0 skip"
+    echo -e "  ${GREEN}$0 skip${WHITE}"
     echo
-    echo -e "${RED}HOWEVER:${WHITE} If this is the first run, you should definitely install them."
+    echo "Just remember that folder names containing spaces (' '), need to be enclosed in double quotes (\"Some Folder\")"
+    echo "or this entire process breaks down, even though I've done my best to minimize the odds of something breaking."
     echo
-    echo -e "Go ahead and install MSVC redistributables? ${YELLOW}(y/n) "; read YN
+    echo -e "${RED}HOWEVER:${WHITE} If this is your first time running this script, you should ${GREEN}definitely${WHITE} install them."
+    echo
+    read "Go ahead and skip the install for MSVC redistributables? (y/n) " YN
 else
     YN="n"
 fi
 echo -e "${WHITE}"
 case $YN in
-    [yY] ) echo "Proceeding with MSVC runtime installs.";
+    [nN] ) echo "Proceeding with MSVC runtime installs.";
       cd "$RSRC";
       for i in *.exe;
         do
