@@ -21,7 +21,7 @@ Assuming a WINE install can be verified, the script will create a WINEPREFIX and
 
 At this point, the script looks for any .EXE files in the source directory (either chosen from the menu or supplied on the command-line), present a list, ask you to pick one, then call WINE to run it.
 
-Next, we install Vulkan from the [JC141](https://pages.github.com/) to replace DX11, and once the initial "setup" completes in WINE, the script looks for any .EXE files in the "destination" folder, once again presenting a user-selectable list.
+Next, we install the newest release of Vulkan from [JC141's Vulkan repository](https://github.com/jc141x/vulkan) to replace DX11, and once the initial "setup" completes in WINE, the script looks for any .EXE files in the "destination" folder, once again presenting a user-selectable list.
 
 With the final .EXE selected, this script writes a runner script for the chosen game which defines the WINEPREFIX and game install location, and the name of the game's primary .EXE, makes it executable, and reports all this to the user.
 
