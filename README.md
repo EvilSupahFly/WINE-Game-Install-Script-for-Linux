@@ -5,7 +5,7 @@ This Windows game installer was written in BASH and is designed (originally) to 
  - "script" - the actual BASH script that does all your heavy lifting
  - "installer" - the Windows-based executable file (frequently named "setup.exe") distributed by the game developers or distributor
 
-## Explanation and disclaimer
+## Explanation and Disclaimer - Postamble
 The script is bound by some limitations at this point, and while it does offer explanations for what it's doing at each step along the way, it's not fool-proof and assumes a base level of experience and systemic understanding from its user. Also, since it was originally intended to work for games downloaded from GoG, and even ripped directly from physical media, it employs a basic assumed-naming convention for the sake of simplicity and usability in that the default location will always be `C:\Games\${SOURCE_FOLDER_NAME}\`. While "The Game 2" or "The Game - Game II" are both valid ways of naming the source folder since the script relies on the user to store the initial setup file(s) in a somewhat sensibly named location, this can be overridden with the installer's built-in "Advanced Options" should the convention employed by this script not be used as the default by the installer. If, for example, you saved "setup.exe" in folder "The Game 2", the script creates the folder `C:\Games\The Game 2\` but then you see that the installer wants to install your game to `C:\Games\The Game - Game II\`, so you pull up the advanced options and change the path accordingly.
 
 ## Getting Started
