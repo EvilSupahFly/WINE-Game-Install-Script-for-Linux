@@ -121,13 +121,17 @@ if ! command -v wine &> /dev/null; then
         echo -e "${YELLOW}WINEHQ repository exists. ${WHITE}Proceeding to WINE install."
     else
         # The information for $UBUNTU_CODENAME is provided by /etc/os-release above
+        DISTRO=${UBUNTU_CODENAME,,}
         echo -e "${RED}WINEHQ repository not found. ${WHITE}Proceeding to add WINEHQ repository information."
-        sudo add-apt-repository "deb https://dl.winehq.org/wine-builds/ubuntu/ $UBUNTU_CODENAME main"
+        sudo mkdir -pm755 /etc/apt/keyrings
+        sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
+        #sudo add-apt-repository "deb https://dl.winehq.org/wine-builds/ubuntu/ $UBUNTU_CODENAME main"
+        sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/$DISTRO/winehq-$DISTRO.sources
         sudo apt update -y
     fi
 
     # If the WINE install fails, save the error to $ERRNUM and exit - we can't do this without WINE.
-    if ! sudo apt install --install-recommends winehq-stable winetricks; then
+    if ! sudo apt install -y --install-recommends winehq-stable winetricks; then
         ERRNUM=$?
         echo
         echo -e "${RED}Fatal error ${WHITE}$ERRNUM ${RED}occurred installing WINE. ٩(๏̯๏)۶ "
