@@ -1,4 +1,4 @@
-This Windows game installer was written in BASH and is designed (originally) to be run on Ubuntu and Ubuntu-based systems (like Mint, for example). At this point, it will fail if this is not the case, though changing that on my eventual to-do list.
+This Windows game installer was written in BASH and is designed (originally) to be run on Ubuntu and Ubuntu-based systems (like Mint, for example). At this point, it will fail if this is not the case, though changing that is on my eventual to-do list.
 
 For launching, there are several options:
 
